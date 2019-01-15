@@ -17,7 +17,7 @@ pattern = '10101' # 10101
 for x_fac in x_facs:
     print("Corruption Rate: {0}".format(x_fac))
     print("----------------------------------")
-    for i in [4]: #range(5):
+    for i in range(5):
         pat = 0
         for r in range(iterations):
             q = QuantumRegister(5)
