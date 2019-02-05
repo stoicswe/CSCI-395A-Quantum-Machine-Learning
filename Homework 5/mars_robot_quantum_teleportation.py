@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+from frozen_lake import FrozenLakeEnv
 from projectq.ops import All, CNOT, H, Measure, X, Z
 from projectq import MainEngine
 
@@ -117,7 +118,8 @@ quantum_engine=MainEngine()
 #message = 'DataEspresso'
 #send_full_message(message=message,quantum_engine=quantum_engine)
 
-env = gym.make('FrozenLake-v0')
+#env = gym.make('FrozenLake-v0')
+env = FrozenLakeEnv(is_slippery=False)
 
 Q = np.zeros([env.observation_space.n,env.action_space.n])
 lr = .8
@@ -153,8 +155,6 @@ for i in range(num_episodes):
             d = True
         else:
             d = False
-        if(i%150 == 0):
-            print("i-[{0} : a-[{1} : s-[{2} : s1-[{3} : r-[{4}".format(i, a, s, s1, r))
         # ====================================================
         # EARTH SIDE OF THE CONNECTION
         Q[s,a] = Q[s,a] + lr*(r + y*np.max(Q[s1,:]) - Q[s,a])
@@ -170,6 +170,8 @@ for i in range(num_episodes):
             break
     #jList.append(j)
     rList.append(rAll)
+    if(i%200 == 0):
+        print("i-[{0} : r-[{1}".format(i, rAll))
 
 print("Score over time: " +  str(sum(rList)/num_episodes))
 print("Final Q-Table Values")
