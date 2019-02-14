@@ -14,12 +14,15 @@ alpha6 = tf.Variable(0.1)
 alpha7 = tf.Variable(0.1)
 alpha8 = tf.Variable(0.1)
 
-alpha9 = tf.Variable(0.1)
-alpha10 = tf.Variable(0.1)
-alpha11 = tf.Variable(0.1)
-alpha12 = tf.Variable(0.1)
-alpha13 = tf.Variable(0.1)
-alpha14 = tf.Variable(0.1)
+beta0 = tf.Variable(0.1)
+beta1 = tf.Variable(0.1)
+beta2 = tf.Variable(0.1)
+beta3 = tf.Variable(0.1)
+beta4 = tf.Variable(0.1)
+beta5 = tf.Variable(0.1)
+beta6 = tf.Variable(0.1)
+beta7 = tf.Variable(0.1)
+beta8 = tf.Variable(0.1)
 
 
 X = tf.placeholder(tf.float32, [2])
@@ -28,25 +31,25 @@ y = tf.placeholder(tf.float32)
 with eng:
     Dgate(X[0], 0.) | q[0]
     Dgate(X[1], 0.) | q[1]
-    BSgate(phi=alpha0) | (q[0], q[1])
-    BSgate() | (q[0], q[1])
-    Sgate(alpha3) | q[0]
-    Sgate(alpha4) | q[1]
-    Dgate(alpha5) | q[0]
-    Dgate(alpha6) | q[1]
-    Pgate(alpha7) | q[0]
-    Pgate(alpha8) | q[1]
 
-    Dgate(X[0], 0.) | q[0]
-    Dgate(X[1], 0.) | q[1]
-    BSgate(phi=alpha0) | (q[0], q[1])
+    Vgate(alpha0) | q[0]
+    Vgate(alpha1) | q[1]
+    Dgate(alpha3) | q[0]
+    Dgate(alpha4) | q[1]
+    BSgate(phi=alpha5) | (q[0], q[1])
     BSgate() | (q[0], q[1])
-    Sgate(alpha9) | q[0]
-    Sgate(alpha10) | q[1]
-    Dgate(alpha11) | q[0]
-    Dgate(alpha12) | q[1]
-    Pgate(alpha13) | q[0]
-    Pgate(alpha14) | q[1]
+    Sgate(alpha6) | q[0]
+    Sgate(alpha7) | q[1]
+
+    Vgate(beta0) | q[0]
+    Vgate(beta1) | q[1]
+    Dgate(beta3) | q[0]
+    Dgate(beta4) | q[1]
+    BSgate(phi=beta5) | (q[0], q[1])
+    BSgate() | (q[0], q[1])
+    Sgate(beta6) | q[0]
+    Sgate(beta7) | q[1]
+    
 
 state = eng.run('tf', cutoff_dim=10, eval=False)
 p0 = state.fock_prob([0, 2])
@@ -64,7 +67,7 @@ y_train = [0, 1, 1, 0]
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-steps = 100
+steps = 200
 for s in range(steps):
     for i in range(4):
         sess.run(minimize_op, feed_dict={X: X_train[i], y: y_train[i]})
