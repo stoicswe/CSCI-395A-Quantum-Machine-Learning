@@ -89,7 +89,7 @@ p3 = state.fock_prob([2,0,0,0])
 normalization = p0 + p1 + p2 + p3 + 1e-10
 circuit_output = [p0 / normalization, p1 / normalization, p2 / normalization]
 loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=circuit_output)
-optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
 minimize_op = optimizer.minimize(loss)
 
 # Beign the training process
