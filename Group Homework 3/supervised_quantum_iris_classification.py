@@ -113,12 +113,7 @@ sess.run(tf.global_variables_initializer())
 steps = 500
 for s in range(steps):
     for i in range(len(xs)):
-        #print("X")
-        #print(xs[i])
-        #print("Y")
-        #print(ys[i])
         sess.run(minimize_op, feed_dict={X:xs[i], y:ys[i]})
     if (s % 10 == 0):
         print("{0}% | Loss: {1}".format((s/steps)*100, sess.run(loss, feed_dict={X:xs[i], y:ys[i]})))
-
 print("Done")
