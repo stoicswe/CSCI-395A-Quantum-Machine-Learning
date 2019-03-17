@@ -2,6 +2,7 @@ import strawberryfields as sf
 from strawberryfields.ops import *
 import tensorflow as tf
 from math import log
+import sklearn
 from sklearn.datasets import load_iris
 import numpy as np
 
@@ -95,6 +96,7 @@ minimize_op = optimizer.minimize(loss)
 # Beign the training process
 data = load_iris()
 xs = data.data[:, :4]
+xs=sklearn.preprocessing.normalize(xs)
 #print(xs)
 ys = []
 y_origin = data.target
@@ -106,6 +108,7 @@ for yi in y_origin:
     if yi == 2:
         ys.append([0.,0.,1.])
 #ys = np.array(ys)
+
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
