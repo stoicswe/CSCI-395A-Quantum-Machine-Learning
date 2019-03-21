@@ -37,7 +37,7 @@ with eng:
 
 state = eng.run('tf', cutoff_dim=10, eval=False)
 p0 = state.fock_prob([2])
-circuit_output = [p0]
+circuit_output = [p0*10]
 squared_delta = tf.square(circuit_output[0]-Y)
 cost = tf.reduce_sum(squared_delta)
 optimize = tf.train.GradientDescentOptimizer(0.1)
