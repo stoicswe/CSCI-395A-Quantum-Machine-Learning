@@ -36,7 +36,8 @@ class Agent:
         self.squared_delta = tf.square(self.output-self.y)
         self.costf = tf.reduce_sum(self.squared_delta)
         self.sess = tf.Session()
-        self.optimizer = tf.train.GradientDescentOptimizer(0.1)
+        #self.optimizer = tf.train.GradientDescentOptimizer(0.01)
+        self.optimizer = tf.train.AdamOptimizer(0.01)
         self.trainop = self.optimizer.minimize(self.costf)
         self.sess.run(tf.global_variables_initializer())
 
@@ -147,10 +148,11 @@ class Agent:
                     self.total_reward = self.total_reward + self.apos * cur_st.A + self.bpos * cur_st.B
                     break
             
-            if(num_episodes % 10 == 0):
-                print("Episode: "+str(num_episodes)+" Total Reward: "+str(self.total_reward/1000.0))
+            
+            print("Episode: "+str(num_episodes)+" Total Reward: "+str(self.total_reward/1000.0), end='\r')
             s = str(num_episodes)+" "+str(self.total_reward/1000.0)+"\n"
             fp.write(s)
+        print()
 
 
 if __name__ == "__main__":

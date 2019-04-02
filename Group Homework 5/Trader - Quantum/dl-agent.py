@@ -22,7 +22,6 @@ class Agent:
         ##########
         self.x = tf.placeholder(tf.float64, [1,1]) #[[0.]]
         self.y = tf.placeholder(tf.float64, [1,3]) #[[0. 0. 0.]]
-        self.z = tf.placeholder(tf.float64, [1,3]) #[[0. 0. 0.]]
 
         self.d1 = tf.Variable(0.1)
         self.d2 = tf.Variable(0.1)
@@ -78,7 +77,8 @@ class Agent:
         self.costf = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.output)
         
         self.sess = tf.Session()
-        self.optimizer = tf.train.GradientDescentOptimizer(0.1)
+        #self.optimizer = tf.train.GradientDescentOptimizer(0.1)
+        self.optimizer = tf.train.AdamOptimizer(0.01)
         self.trainop = self.optimizer.minimize(self.costf)
         self.sess.run(tf.global_variables_initializer())
 
@@ -92,12 +92,10 @@ class Agent:
 
     def cost(self, X, Y):
         #cross entropy here
-        pred = self.predict(X)
-        return self.sess.run(self.costf, feed_dict={self.x:X, self.y:Y, self.z:pred})
+        return self.sess.run(self.costf, feed_dict={self.x:X, self.y:Y})
     
     def fit(self, X, Y):
-        pred = self.predict(X)
-        self.sess.run(self.trainop, feed_dict={self.x:X, self.y:Y, self.z:pred})
+        self.sess.run(self.trainop, feed_dict={self.x:X, self.y:Y})
     
     def remember(self, state, action, reward, next_state, done):
 	    self.memory.append((state, action, reward, next_state, done))
@@ -191,10 +189,10 @@ class Agent:
                     self.total_reward = self.total_reward + self.apos * cur_st.A + self.bpos * cur_st.B
                     break
             
-            if(num_episodes % 10 == 0):
-                print("Episode: "+str(num_episodes)+" Total Reward: "+str(self.total_reward/1000.0))
+            print("Episode: "+str(num_episodes)+" Total Reward: "+str(self.total_reward/1000.0), end='\r')
             s = str(num_episodes)+" "+str(self.total_reward/1000.0)+"\n"
             fp.write(s)
+        print()
 
 
 if __name__ == "__main__":
