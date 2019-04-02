@@ -12,7 +12,7 @@ class Agent:
         self.memory = deque(maxlen=500000)
         self.apos = 0
         self.bpos = 0
-        self.learning_rate = 0.001
+        self.learning_rate = 0.01 #original value: 0.001
         self.gamma = 0.9
         self.exploration_rate = 1.0
         self.exploration_min = 0.01
@@ -110,7 +110,7 @@ class Agent:
         fp.write("time reward\n")
 
 
-        for num_episodes in range(500):
+        for num_episodes in range(steps):
 
             self.total_reward = 0.0
             env.reset()
@@ -146,8 +146,9 @@ class Agent:
                 if num_steps == steps - 1:
                     self.total_reward = self.total_reward + self.apos * cur_st.A + self.bpos * cur_st.B
                     break
-
-            print("Episode: "+str(num_episodes)+" Total Reward: "+str(self.total_reward/1000.0))
+            
+            if(num_episodes % 10 == 0):
+                print("Episode: "+str(num_episodes)+" Total Reward: "+str(self.total_reward/1000.0))
             s = str(num_episodes)+" "+str(self.total_reward/1000.0)+"\n"
             fp.write(s)
 
