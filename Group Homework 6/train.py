@@ -1,4 +1,5 @@
-from agent.agent import Agent
+#from agent.agent import Agent
+from agent.quantum_agent import Agent
 from functions import *
 import sys
 
@@ -6,12 +7,17 @@ import sys
 from keras.callbacks import TensorBoard, EarlyStopping
 
 try:
-	if len(sys.argv) != 4:
-		print ("Usage: python train.py [stock] [window] [episodes]")
-		exit()
+	#if len(sys.argv) != 4:
+	#	print ("Usage: python train.py [stock] [window] [episodes]")
+	#	exit()
 
-	stock_name, window_size, episode_count = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+	#stock_name, window_size, episode_count = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
 
+	stock_name="^GSPC"
+	window_size = 4
+	episode_count = 1000
+
+	print("Setup")
 	agent = Agent(window_size)
 	data = getStockDataVec(stock_name)
 	l = len(data) - 1

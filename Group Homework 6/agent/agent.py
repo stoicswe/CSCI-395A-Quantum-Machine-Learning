@@ -41,6 +41,8 @@ class Agent:
 
 	#Action
 	def act(self, state):
+		print("ACT ON:")
+		print(state)
 		rand_val = np.random.rand()
 		if not self.is_eval and rand_val <= self.epsilon:
 			return random.randrange(self.action_size)
@@ -64,6 +66,8 @@ class Agent:
 				target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
 
 			target_f = self.model.predict(state)
+			print("STRAIGHT PREDICTION")
+			print(target_f)
 			target_f[0][action] = target
 			self.model.fit(state, target_f, epochs=1, verbose=0)
 
