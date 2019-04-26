@@ -1,5 +1,7 @@
 #%% (0) Important libraries
 import tensorflow as tf
+import strawberryfields as sf
+from strawberryfields.ops import *
 import numpy as np
 from numpy import random
 import matplotlib.pyplot as plt
@@ -135,11 +137,86 @@ class GRU:
         The datatype used for the variables and constants (optional).
     """
     
-    def __init__(self, input_dimensions, hidden_size, dtype=tf.float64):
+    def __init__(self, dtype=tf.float64):
+        self.input_dimensions = 3
+        self.hidden_size = 6
+        ##################################
+        self.BS1 = tf.Variable(0.1)
+        self.BS2 = tf.Variable(0.1)
+        self.BS3 = tf.Variable(0.1)
+        self.BS4 = tf.Variable(0.1)
+        self.BS5 = tf.Variable(0.1)
+        self.BS6 = tf.Variable(0.1)
+        self.BS7 = tf.Variable(0.1)
+        self.BS8 = tf.Variable(0.1)
+        self.BS9 = tf.Variable(0.1)
+        self.BS10 = tf.Variable(0.1)
+        self.BS11 = tf.Variable(0.1)
+        self.BS12 = tf.Variable(0.1)
+        self.BS13 = tf.Variable(0.1)
+        self.BS14 = tf.Variable(0.1)
+        self.BS15 = tf.Variable(0.1)
+        self.BS16 = tf.Variable(0.1)
 
-        self.input_dimensions = input_dimensions
-        self.hidden_size = hidden_size
-        
+        self.S1 = tf.Variable(0.1)
+        self.S2 = tf.Variable(0.1)
+        self.S3 = tf.Variable(0.1)
+        self.S4 = tf.Variable(0.1)
+        self.S5 = tf.Variable(0.1)
+        self.S6 = tf.Variable(0.1)
+
+        self.V1 = tf.Variable(0.1)
+        self.V2 = tf.Variable(0.1)
+        self.V3 = tf.Variable(0.1)
+        self.V4 = tf.Variable(0.1)
+        self.V5 = tf.Variable(0.1)
+        self.V6 = tf.Variable(0.1)
+        ##################################
+
+        self.input_layer = tf.placeholder(dtype=tf.float64, shape=(None, None, input_dimensions), name='input')
+        self.q, self.eng = sf.Engine(6)
+        with self.eng:
+            Dgate(self.input_layer[0]) | self.q[0]
+            Dgate(self.input_layer[1]) | self.q[1]
+            Dgate(self.input_layer[2]) | self.q[2]
+            Dgate(self.input_layer[3]) | self.q[3]
+            
+            BSgate(self.BS1)           | (self.q[0], self.q[0])
+            BSgate()           | (self.q[0], self.q[0])
+            BSgate(self.BS2)           | (self.q[0], self.q[1])
+            BSgate()           | (self.q[0], self.q[1])
+            BSgate(self.BS3)           | (self.q[0], self.q[2])
+            BSgate()           | (self.q[0], self.q[2])
+            BSgate(self.BS4)           | (self.q[0], self.q[3])
+            BSgate()           | (self.q[0], self.q[3])
+            
+            BSgate(self.BS7)           | (self.q[1], self.q[2])
+            BSgate()           | (self.q[1], self.q[2])
+            BSgate(self.BS8)           | (self.q[1], self.q[3])
+            BSgate()           | (self.q[1], self.q[3])
+            
+            BSgate(self.BS11)           | (self.q[2], self.q[3])
+            BSgate()           | (self.q[2], self.q[3])
+
+            Sgate(self.S1)     | self.q[0]
+            Sgate(self.S2)     | self.q[1]
+            Sgate(self.S3)     | self.q[2]
+            Sgate(self.S4)     | self.q[3]
+
+            Vgate(self.V1)     | self.q[0]
+            Vgate(self.V2)     | self.q[1]
+            Vgate(self.V3)     | self.q[2]
+            Vgate(self.V4)     | self.q[3]
+
+            self.state = self.eng.run('tf', cutoff_dim=10, eval=False)
+            self.p0 = self.state.fock_prob([0,0,0,2])
+            self.p1 = self.state.fock_prob([0,0,2,0])
+            self.p2 = self.state.fock_prob([0,2,0,0])
+            self.p3 = self.state.fock_prob([2,0,0,0])
+            self.normalization = self.p0 + self.p1 + self.p2 + self.p3 + 1e-10
+            self.hiodden = [self.p0/self.normalization, self.p1/self.normalization, self.p2/self.normalization, self.p3/self.normalization]
+            self.out = [self.p0/self.normalization, self.p1/self.normalization]
+
         # Weights for input vectors of shape (input_dimensions, hidden_size)
         self.Wr = tf.Variable(tf.truncated_normal(dtype=dtype, shape=(self.input_dimensions, self.hidden_size), mean=0, stddev=0.01), name='Wr')
         self.Wz = tf.Variable(tf.truncated_normal(dtype=dtype, shape=(self.input_dimensions, self.hidden_size), mean=0, stddev=0.01), name='Wz')
@@ -155,9 +232,6 @@ class GRU:
         self.bz = tf.Variable(tf.truncated_normal(dtype=dtype, shape=(self.hidden_size,), mean=0, stddev=0.01), name='bz')
         self.bh = tf.Variable(tf.truncated_normal(dtype=dtype, shape=(self.hidden_size,), mean=0, stddev=0.01), name='bh')
         
-        # Define the input layer placeholder
-        self.input_layer = tf.placeholder(dtype=tf.float64, shape=(None, None, input_dimensions), name='input')
-        
         # Put the time-dimension upfront for the scan operator
         self.x_t = tf.transpose(self.input_layer, [1, 0, 2], name='x_t')
         
@@ -169,6 +243,7 @@ class GRU:
         
         # Transpose the result back
         self.h_t = tf.transpose(self.h_t_transposed, [1, 0, 2], name='h_t')
+        print(self.h_t)
 
     def forward_pass(self, h_tm1, x_t):
         """Perform a forward pass.
@@ -180,15 +255,18 @@ class GRU:
         x_t: np.matrix
             The input vector.
         """
+
         # Definitions of z_t and r_t
-        z_t = tf.sigmoid(tf.matmul(x_t, self.Wz) + tf.matmul(h_tm1, self.Uz) + self.bz)
-        r_t = tf.sigmoid(tf.matmul(x_t, self.Wr) + tf.matmul(h_tm1, self.Ur) + self.br)
+        z_t = tf.sigmoid(tf.matmul(x_t, self.Wz) + tf.matmul(h_tm1, self.Uz) + self.bz) #size of 4
+        r_t = tf.sigmoid(tf.matmul(x_t, self.Wr) + tf.matmul(h_tm1, self.Ur) + self.br) #size of 4
         
         # Definition of h~_t
         h_proposal = tf.tanh(tf.matmul(x_t, self.Wh) + tf.matmul(tf.multiply(r_t, h_tm1), self.Uh) + self.bh)
         
         # Compute the next hidden state
         h_t = tf.multiply(1 - z_t, h_tm1) + tf.multiply(z_t, h_proposal)
+
+
         
         return h_t
     
